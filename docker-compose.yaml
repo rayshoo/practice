@@ -1,0 +1,11 @@
+#docker-compose.yml
+version: "2"
+services:
+  rabbitmq:
+    image: rabbitmq:3.6-management
+    container_name: rabbitmq
+#    network_mode: host
+    ports:
+      - 5672:5672
+      - 15672:15672
+
