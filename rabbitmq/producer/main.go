@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -14,13 +15,13 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@10.254.1.51:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
+	defer func() { _ = ch.Close() }()
 
 	q, err := ch.QueueDeclare(
 		"hello", // name
@@ -33,13 +34,15 @@ func main() {
 	failOnError(err, "Failed to declare a queue")
 
 	body := "Hello World!"
-	for i:=0;i<5;i++ {
+	for i := 0; i < 5; i++ {
+		ctx, _ := context.WithCancel(context.Background())
 		go func() {
-			err = ch.Publish(
-				"",     // exchange
-				q.Name, // routing key
-				false,  // mandatory
-				false,  // immediate
+			err = ch.PublishWithContext(
+				ctx,
+				"",
+				q.Name,
+				false,
+				false,
 				amqp.Publishing{
 					ContentType: "text/plain",
 					Body:        []byte(body),
