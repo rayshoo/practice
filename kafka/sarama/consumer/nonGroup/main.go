@@ -24,6 +24,9 @@ func (h exampleConsumerGroupHandler) ConsumeClaim(sess ConsumerGroupSession, cla
 }
 */
 
+var brokers string
+var topic string
+
 // Reference : https://pkg.go.dev/github.com/shopify/sarama
 func main() {
 	var nTntIdx int32 = 0 // Partition Index Set
@@ -35,7 +38,6 @@ func main() {
 	config.ChannelBufferSize = 1000000
 	config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRange()}
 
-	const brokers = "10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293"
 	brokerList := strings.Split(brokers, ",")
 	client, err := sarama.NewClient(brokerList, config)
 
@@ -44,7 +46,7 @@ func main() {
 	}
 
 	// if you want completed message -> 0
-	lastOffset, err := client.GetOffset("call_topic", nTntIdx, sarama.OffsetNewest)
+	lastOffset, err := client.GetOffset(topic, nTntIdx, sarama.OffsetNewest)
 
 	if err != nil {
 		panic(err)

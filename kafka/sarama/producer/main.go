@@ -9,10 +9,8 @@ import (
 
 // Reference : https://pkg.go.dev/github.com/shopify/sarama
 
-const brokers = "10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293"
-
-// const topic = "call_topic"
-const topic = "test"
+var brokers string
+var topic string
 
 var asyncProducer sarama.AsyncProducer
 var syncProducer sarama.SyncProducer

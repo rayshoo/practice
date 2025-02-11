@@ -25,11 +25,10 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-func main() {
-	const brokers = "10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293"
-	// topic := "call_topic"
-	topic := "test"
+var brokers string
+var topic string
 
+func main() {
 	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": brokers})
 
 	if err != nil {
@@ -52,7 +51,7 @@ func main() {
 				} else {
 					fmt.Printf("produce succeeded. topic: %s. partition: %d. offset : %d\n", *m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
 				}
-				// return
+				return
 			default:
 				fmt.Printf("Ignored event: %s\n", ev)
 			}

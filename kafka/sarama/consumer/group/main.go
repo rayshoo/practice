@@ -21,17 +21,19 @@ func (h exampleConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSessi
 	return nil
 }
 
+var brokers string
+var group string
+var topic string
+
 // Reference : https://pkg.go.dev/github.com/shopify/sarama
 func main() {
-	const brokers = "10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293"
-	// topics := []string{"call_topic"}
-	topics := []string{"test"}
+	topics := []string{topic}
 
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 
-	group, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), "2", config)
+	group, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), group, config)
 	if err != nil {
 		panic(err)
 	}

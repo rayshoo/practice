@@ -22,14 +22,17 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
+var brokers string
+var group string
+var topic string
+
 func main() {
-	const brokers = "10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293"
-	group := "0"
-	topics := []string{"call_topic"}
+	topics := []string{topic}
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -80,6 +83,7 @@ func main() {
 				fmt.Printf("Consumed: %d\n", consumed)
 				fmt.Println(string(e.Key))
 				fmt.Println(string(e.Value))
+				time.Sleep(time.Second * 1)
 			case kafka.PartitionEOF:
 				// fmt.Printf("%% Reached %v\n", e)
 			case kafka.Error:
