@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"sync/atomic"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -40,6 +41,9 @@ func main() {
 
 	doneChan := make(chan bool)
 
+	const messageCount = 10
+
+	var processedCount int32 = 0
 	go func() {
 		defer close(doneChan)
 		for e := range p.Events() {
@@ -51,7 +55,11 @@ func main() {
 				} else {
 					fmt.Printf("produce succeeded. topic: %s. partition: %d. offset : %d\n", *m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
 				}
-				return
+
+				count := atomic.AddInt32(&processedCount, 1)
+				if count >= messageCount {
+					return
+				}
 			default:
 				fmt.Printf("Ignored event: %s\n", ev)
 			}
@@ -61,7 +69,7 @@ func main() {
 	value := "Hello Go!"
 
 	var wg sync.WaitGroup
-	for i := 0; i < 10; i++ {
+	for i := 0; i < messageCount; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
