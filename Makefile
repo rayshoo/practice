@@ -1,19 +1,29 @@
 brokers := 10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293
-topic := testtest
+topic := test3
 group := 0
 
 up:
 	docker-compose -f kafka/docker-compose.yaml up -d
 	docker-compose -f rabbitmq/docker-compose.yaml up -d
 .PHONY: up
+down:
+	docker-compose -f kafka/docker-compose.yaml down
+	docker-compose -f rabbitmq/docker-compose.yaml down
+.PHONY: down
 
-kafka:
+k-up:
 	docker-compose -f kafka/docker-compose.yaml up -d
-.PHONY: kafka
+.PHONY: k-up
+k-down:
+	docker-compose -f kafka/docker-compose.yaml down -d
+.PHONY: k-down
 
-rabbitmq:
+r-up:
 	docker-compose -f rabbitmq/docker-compose.yaml up -d
-.PHONY: rabbitmq
+.PHONY: r-up
+r-down:
+	docker-compose -f rabbitmq/docker-compose.yaml down -d
+.PHONY: r-down
 
 fmt:
 	goimports -l -w .
@@ -32,4 +42,26 @@ cc:
 	go run \
 	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
 	main.go
-.PHONY: cp
+.PHONY: cc
+
+# sarama produce
+sp:
+	cd kafka/sarama/producer && \
+	go run \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic}" \
+	main.go
+.PHONY: sp
+# sarama group consumes
+scg:
+	cd kafka/sarama/consumer/group && \
+	go run \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
+	main.go
+.PHONY: scg
+# sarama non group consumes
+sc:
+	cd kafka/sarama/consumer/nonGroup && \
+	go run \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
+	main.go
+.PHONY: sc

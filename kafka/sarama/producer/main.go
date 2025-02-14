@@ -30,7 +30,11 @@ func SyncWriter(brokerList []string) sarama.SyncProducer {
 	// config.Producer.Partitioner = sarama.NewManualPartitioner
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll // Wait for all in-sync replicas to ack the message
-	config.Producer.Retry.Max = 10                   // Retry up to 10 times to produce the message
+
+	// config.Producer.Compression = sarama.CompressionNone
+	config.Producer.Compression = sarama.CompressionSnappy // Compress messages
+
+	config.Producer.Retry.Max = 10 // Retry up to 10 times to produce the message
 	config.Producer.Return.Successes = true
 
 	// On the broker side, you may want to change the following settings to get
@@ -57,8 +61,11 @@ func AsyncWriter(brokerList []string) sarama.AsyncProducer {
 	// }
 	// config.Producer.Partitioner = sarama.NewManualPartitioner
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
-	config.Producer.RequiredAcks = sarama.WaitForLocal     // Only wait for the leader to ack
+	config.Producer.RequiredAcks = sarama.WaitForLocal // Only wait for the leader to ack
+
+	// config.Producer.Compression = sarama.CompressionNone
 	config.Producer.Compression = sarama.CompressionSnappy // Compress messages
+
 	// config.Producer.Flush.Frequency = 500 * time.Millisecond // Flush batches every 500ms
 	config.Producer.Return.Errors = true
 	config.Producer.Return.Successes = true
@@ -87,20 +94,20 @@ func AsyncWriter(brokerList []string) sarama.AsyncProducer {
 
 func AsyncProducer() {
 	asyncProducer.Input() <- &sarama.ProducerMessage{
-		Topic:     topic,
-		Key:       sarama.StringEncoder("CallId"),
-		Value:     sarama.StringEncoder("AgentId"),
-		Partition: int32(1),
+		Topic: topic,
+		// Key:   sarama.StringEncoder("CallId"),
+		Value: sarama.StringEncoder("Hello Go!"),
+		// Partition: int32(0),
 	}
 }
 
 func SyncProducer() {
 	// returned partition, offset, err
 	partition, offset, err := syncProducer.SendMessage(&sarama.ProducerMessage{
-		Topic:     topic,
-		Key:       sarama.StringEncoder("CallId"),
-		Value:     sarama.StringEncoder("AgentId"),
-		Partition: int32(1),
+		Topic: topic,
+		// Key:   sarama.StringEncoder("CallId"),
+		Value: sarama.StringEncoder("Hello Go!"),
+		// Partition: int32(0),
 		// Offset
 		// Metadata
 		// Timestamp

@@ -67,7 +67,7 @@ func main() {
 	}()
 
 	// Read Specific Partition From Topic
-	partitionConsumer, err := consumer.ConsumePartition("call_topic", nTntIdx, lastOffset)
+	partitionConsumer, err := consumer.ConsumePartition(topic, nTntIdx, lastOffset)
 	// ctx := context.Background()
 	// handler := exampleConsumerGroupHandler{}
 	// err := group.Consume(ctx, []string{"call_topic"}, handler)
