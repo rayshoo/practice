@@ -70,3 +70,11 @@ avro:
 	cd avro && \
 	go run main.go
 .PHONY: avro
+
+wasm-up:
+	$(MAKE) -C webassembly up
+.PHONY: wasm-up
+
+wasm-build:
+	$(MAKE) -C webassembly build
+.PHONY: wasm-build
