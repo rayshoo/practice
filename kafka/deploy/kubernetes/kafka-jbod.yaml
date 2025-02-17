@@ -13,7 +13,7 @@ spec:
     volumes:
       - id: 0
         type: persistent-claim
-        size: 100Gi
+        size: 20Gi
         kraftMetadata: shared
         deleteClaim: false
 ---
@@ -33,7 +33,7 @@ spec:
     volumes:
       - id: 0
         type: persistent-claim
-        size: 100Gi
+        size: 20Gi
         # Indicates that this directory will be used to store Kraft metadata log
         kraftMetadata: shared
         deleteClaim: false
