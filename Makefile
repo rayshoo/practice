@@ -65,3 +65,8 @@ sc:
 	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
 	main.go
 .PHONY: sc
+
+avro:
+	cd avro && \
+	go run main.go
+.PHONY: avro

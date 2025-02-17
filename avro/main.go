@@ -185,6 +185,7 @@ func avro3() {
 	if err != nil {
 		panic(err)
 	}
+	// fmt.Println(string(binaryData))
 
 	ch := make(chan []byte)
 	done := make(chan bool)
