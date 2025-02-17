@@ -17,5 +17,24 @@
 <div>
   <code>formatJSON('{"website":"golangbot.com", "tutorials": [{"title": "Strings", "url":"/strings/"}]}')</code>
 </div>
+<div>
+  <label>
+    <textarea id="jsonInput" name="jsonInput" cols="80" rows="20"></textarea>
+  </label>
+  <input id="button" type="submit" name="button" value="pretty json" onclick="json(jsonInput.value)"/>
+  <label>
+    <textarea id="jsonOutput" name="jsonOutput" cols="80" rows="20"></textarea>
+  </label>
+  <script>
+    const json = function(input) {
+      const result = formatJSON(input)
+      if ( result != null && 'error' in result) {
+        console.log("Go return value", result)
+        jsonOutput.value = ""
+        alert(result.error)
+      }
+    }
+  </script>
+</div>
 </body>
 </html>
