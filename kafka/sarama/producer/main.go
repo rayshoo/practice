@@ -1,7 +1,11 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/IBM/sarama"
@@ -11,6 +15,7 @@ import (
 
 var brokers string
 var topic string
+var cert string
 
 var asyncProducer sarama.AsyncProducer
 var syncProducer sarama.SyncProducer
@@ -19,7 +24,6 @@ func init() {
 	brokerList := strings.Split(brokers, ",")
 	asyncProducer = AsyncWriter(brokerList)
 	syncProducer = SyncWriter(brokerList)
-
 }
 
 func SyncWriter(brokerList []string) sarama.SyncProducer {
@@ -27,6 +31,16 @@ func SyncWriter(brokerList []string) sarama.SyncProducer {
 	// Because we don't change the flush settings, sarama will try to produce messages
 	// as fast as possible to keep latency low.
 	config := sarama.NewConfig()
+
+	if cert != "" {
+		tlsConfig, err := createTlsConfiguration(cert)
+		if err != nil {
+			panic(err)
+		}
+		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = tlsConfig
+	}
+
 	// config.Producer.Partitioner = sarama.NewManualPartitioner
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll // Wait for all in-sync replicas to ack the message
@@ -54,11 +68,16 @@ func AsyncWriter(brokerList []string) sarama.AsyncProducer {
 	// For the access log, we are looking for AP semantics, with high throughput.
 	// By creating batches of compressed messages, we reduce network I/O at a cost of more latency.
 	config := sarama.NewConfig()
-	// tlsConfig := createTlsConfiguration()
-	// if tlsConfig != nil {
-	//    config.Net.TLS.Enable = true
-	//    config.Net.TLS.Config = tlsConfig
-	// }
+
+	if cert != "" {
+		tlsConfig, err := createTlsConfiguration(cert)
+		if err != nil {
+			panic(err)
+		}
+		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = tlsConfig
+	}
+
 	// config.Producer.Partitioner = sarama.NewManualPartitioner
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForLocal // Only wait for the leader to ack
@@ -119,8 +138,26 @@ func SyncProducer() {
 	fmt.Printf("sync produce succeeded. topic: %s, partition: %d. offset : %d\n", topic, partition, offset)
 }
 
+func createTlsConfiguration(path string) (*tls.Config, error) {
+	paths := strings.Split(path, "\\")
+	path = filepath.Join(paths...)
+
+	f, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	p := x509.NewCertPool()
+	p.AppendCertsFromPEM(f)
+
+	return &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		RootCAs:    p,
+	}, nil
+}
+
 func main() {
-	AsyncProducer()
-	SyncProducer()
+	// AsyncProducer()
+	// SyncProducer()
 	SyncProducer()
 }

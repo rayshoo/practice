@@ -1,10 +1,11 @@
-brokers := 10.254.1.51:29291,10.254.1.51:29292,10.254.1.51:29293
-topic := test3
+brokers := bootstrap.ezarrow.co.kr:443
+topic := test
 group := 0
+cert := ..\..\files\ssl\server.crt
 
 # zookeeper or kraft
-kafka_mode := kraft
-#kafka_mode := zookeeper
+#kafka_mode := kraft
+kafka_mode := zookeeper
 
 up:
 	docker-compose -f deploy/docker/${kafka_mode}/docker-compose.yaml up -d
@@ -32,20 +33,20 @@ cc:
 sp:
 	cd sarama/producer && \
 	go run \
-	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic}" \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.cert=${cert}" \
 	main.go
 .PHONY: sp
 # sarama group consumes
 scg:
 	cd sarama/consumer/group && \
 	go run \
-	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group} -X main.cert=..\${cert}" \
 	main.go
 .PHONY: scg
 # sarama non group consumes
 sc:
 	cd sarama/consumer/nonGroup && \
 	go run \
-	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group}" \
+	-ldflags "-s -w -X main.brokers=${brokers} -X main.topic=${topic} -X main.group=${group} -X main.cert=..\${cert}" \
 	main.go
 .PHONY: sc

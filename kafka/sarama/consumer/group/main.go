@@ -3,7 +3,11 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/IBM/sarama"
@@ -24,12 +28,22 @@ func (h exampleConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSessi
 var brokers string
 var group string
 var topic string
+var cert string
 
 // Reference : https://pkg.go.dev/github.com/shopify/sarama
 func main() {
 	topics := []string{topic}
 
 	config := sarama.NewConfig()
+
+	if cert != "" {
+		tlsConfig, err := createTlsConfiguration(cert)
+		if err != nil {
+			panic(err)
+		}
+		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = tlsConfig
+	}
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 
@@ -55,4 +69,22 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+func createTlsConfiguration(path string) (*tls.Config, error) {
+	paths := strings.Split(path, "\\")
+	path = filepath.Join(paths...)
+
+	f, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	p := x509.NewCertPool()
+	p.AppendCertsFromPEM(f)
+
+	return &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		RootCAs:    p,
+	}, nil
 }

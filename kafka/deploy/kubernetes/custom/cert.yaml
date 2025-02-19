@@ -1,0 +1,19 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: my-cluster-lets-encrypt
+spec:
+  secretName: my-cluster-lets-encrypt
+  issuerRef:
+    name: example-com-letsencrypt-prod
+    kind: ClusterIssuer
+    group: cert-manager.io
+  subject:
+    organizations:
+    - my-org
+  dnsNames:
+  - bootstrap.example.com
+  - broker-0.example.com
+  - broker-1.example.com
+  - broker-2.example.com
