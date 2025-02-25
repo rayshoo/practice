@@ -1,0 +1,56 @@
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: bootstrap.example.com
+spec:
+  virtualhost:
+    fqdn: bootstrap.example.com
+    tls:
+      passthrough: true
+  tcpproxy:
+    services:
+    - name: my-cluster-kafka-external-bootstrap
+      port: 9094
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: broker-0.example.com
+spec:
+  virtualhost:
+    fqdn: broker-0.example.com
+    tls:
+      passthrough: true
+  tcpproxy:
+    services:
+    - name: my-cluster-broker-0
+      port: 9094
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: broker-1.example.com
+spec:
+  virtualhost:
+    fqdn: broker-1.example.com
+    tls:
+      passthrough: true
+  tcpproxy:
+    services:
+    - name: my-cluster-broker-1
+      port: 9094
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: broker-2.example.com
+spec:
+  virtualhost:
+    fqdn: broker-2.example.com
+    tls:
+      passthrough: true
+  tcpproxy:
+    services:
+    - name: my-cluster-broker-2
+      port: 9094
